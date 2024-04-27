@@ -57,8 +57,7 @@ router.get("/me", (req, res) => {
     return res.send({ message: "not logged in" });
   }
 
-  database
-    .getUserWithId(userId)
+  getUserWithId(userId)
     .then((user) => {
       if (!user) {
         return res.send({ error: "no user with that id" });
