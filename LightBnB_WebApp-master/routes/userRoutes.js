@@ -8,13 +8,14 @@ const router = express.Router();
 router.post("/", (req, res) => {
   const user = req.body;
   user.password = bcrypt.hashSync(user.password, 12);
-  addUser(user)
-    .then((newUser) => {
-      if (!newUser) {
+  database
+    .addUser(user)
+    .then((user) => {
+      if (!user) {
         return res.send({ error: "error" });
       }
 
-      req.session.userId = newUser.id;
+      req.session.userId = user.id;
       res.send("🤗");
     })
     .catch((e) => res.send(e));
@@ -22,15 +23,16 @@ router.post("/", (req, res) => {
 
 // Log a user in
 router.post("/login", (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body.email;
+  const password = req.body.password;
 
-  getUserWithEmail(email).then((user) => {
+  database.getUserWithEmail(email).then((user) => {
     if (!user) {
-      return res.send({ error: "no user with that email" });
+      return res.send({ error: "no user with that id" });
     }
 
     if (!bcrypt.compareSync(password, user.password)) {
-      return res.send({ error: "incorrect password" });
+      return res.send({ error: "error" });
     }
 
     req.session.userId = user.id;
@@ -57,7 +59,8 @@ router.get("/me", (req, res) => {
     return res.send({ message: "not logged in" });
   }
 
-  getUserWithId(userId)
+  database
+    .getUserWithId(userId)
     .then((user) => {
       if (!user) {
         return res.send({ error: "no user with that id" });
