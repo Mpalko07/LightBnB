@@ -1,6 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const database = require("../db/database");
+const { getUserWithEmail, getUserWithId, addUser } = require("../db/database");
 
 const router = express.Router();
 
@@ -8,14 +8,13 @@ const router = express.Router();
 router.post("/", (req, res) => {
   const user = req.body;
   user.password = bcrypt.hashSync(user.password, 12);
-  database
-    .addUser(user)
-    .then((user) => {
-      if (!user) {
+  addUser(user)
+    .then((newUser) => {
+      if (!newUser) {
         return res.send({ error: "error" });
       }
 
-      req.session.userId = user.id;
+      req.session.userId = newUser.id;
       res.send("🤗");
     })
     .catch((e) => res.send(e));
