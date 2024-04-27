@@ -22,16 +22,15 @@ router.post("/", (req, res) => {
 
 // Log a user in
 router.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
 
-  database.getUserWithEmail(email).then((user) => {
+  getUserWithEmail(email).then((user) => {
     if (!user) {
-      return res.send({ error: "no user with that id" });
+      return res.send({ error: "no user with that email" });
     }
 
     if (!bcrypt.compareSync(password, user.password)) {
-      return res.send({ error: "error" });
+      return res.send({ error: "incorrect password" });
     }
 
     req.session.userId = user.id;
